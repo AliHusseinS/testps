@@ -3491,16 +3491,20 @@ function checkExistingDeptsFromServer() {
       
       let html = '';
       if (duplicates.length > 0) {
-        html += `⚠️ الأقسام التالية <b>موجودة مسبقاً</b> وسيتم <b>تحديث بياناتها واستبدالها بالكامل</b> عند الاستيراد:<br>`;
+        html += `⚠️ الأقسام التالية <b>موجودة مسبقاً</b> في النظام، وسيتم <b>تحديث بيانات طلابها فقط</b> (استبدال الطلاب القدامى في هذا القسم بطلاب الملف الجديد):<br>`;
         html += `<ul style="margin: 4px 18px 10px 0; padding: 0; list-style-type: square">`;
         duplicates.forEach(d => {
-          html += `<li>${escapeHtml(d.uploaded)} (سيعوض القسم المخزن باسم: ${escapeHtml(d.db)})</li>`;
+          if (d.uploaded.trim() === d.db.trim()) {
+            html += `<li>${escapeHtml(d.uploaded)}</li>`;
+          } else {
+            html += `<li>${escapeHtml(d.uploaded)} <span style="color:var(--text-sub); font-size:11px">(مطابق للقسم المخزن: ${escapeHtml(d.db)})</span></li>`;
+          }
         });
         html += `</ul>`;
       }
       
       if (added.length > 0) {
-        html += `➕ الأقسام التالية <b>جديدة بالكامل</b> وسيتم إضافتها لأول مرة:<br>`;
+        html += `➕ الأقسام التالية <b>جديدة بالكامل</b> في هذه السنة وسيتم إضافتها للنظام لأول مرة:<br>`;
         html += `<ul style="margin: 4px 18px 10px 0; padding: 0; list-style-type: square">`;
         added.forEach(a => {
           html += `<li>${escapeHtml(a)}</li>`;
@@ -3514,7 +3518,7 @@ function checkExistingDeptsFromServer() {
       });
       
       if (unaffected.length > 0) {
-        html += `ℹ️ الأقسام التالية مخزنة مسبقاً في قاعدة البيانات و<b>لن تتأثر نهائياً</b> بعملية الدمج:<br>`;
+        html += `ℹ️ الأقسام التالية مخزنة مسبقاً في النظام و<b>لن تتأثر أو تُحذف نهائياً</b> بعملية الدمج (ستبقى بيانات طلابها كما هي دون أي تعديل):<br>`;
         html += `<ul style="margin: 4px 18px 0 0; padding: 0; list-style-type: square; color:#555">`;
         unaffected.forEach(u => {
           html += `<li>${escapeHtml(u)}</li>`;
