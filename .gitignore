@@ -3,3 +3,4 @@ node_modules/
 gas-deploy/
 .DS_Store
 *.log
+script.txt
