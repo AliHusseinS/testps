@@ -1337,7 +1337,7 @@ header .spacer { flex: 1; }
 
           <!-- عمود أوراق العمل -->
           <div style="display:flex; flex-direction:column">
-            <label style="display:block; font-size:13px; font-weight:700; color:var(--text-sub); margin-bottom:8px">📄 حدد أوراق العمل المراد استيرادها:</label>
+            <label style="display:block; font-size:13px; font-weight:700; color:var(--text-sub); margin-bottom:8px">حدد البيانات المطلوب استيرادها.</label>
             <div id="importSheetsContainer" style="display:flex; flex-direction:column; flex:1">
               <div id="importSheetsList" style="display:flex; flex-direction:column; gap:8px; background:var(--surface-trans); border:1.5px solid var(--border); border-radius:var(--radius); padding:12px; height:145px; overflow-y:auto; box-sizing:border-box; justify-content:center; align-items:center; color:var(--text-muted); font-size:13px; text-align:center">
                 📂 يرجى اختيار ملف Excel لعرض أوراق العمل المتوفرة...
@@ -1361,7 +1361,7 @@ header .spacer { flex: 1; }
         
         <!-- معدلات وأعداد الطلبة الأوائل حسب الأقسام (ديناميكي ومخفي افتراضياً) -->
         <div id="firstGradContainer" style="display:none; background:var(--surface-alt); padding:16px 20px; border-radius:var(--radius); border:1px solid var(--border); margin-bottom:20px; transition:opacity 0.3s">
-          <h4 id="firstGradTitle" style="font-size:13px; font-weight:800; color:var(--primary-dark); margin-bottom:12px; border-bottom:1.5px solid var(--border); padding-bottom:6px">🥇 معدل الأول والعدد الكلي للأقسام (يدوي):</h4>
+          <h4 id="firstGradTitle" style="font-size:13px; font-weight:800; color:var(--primary-dark); margin-bottom:12px; border-bottom:1.5px solid var(--border); padding-bottom:6px">بيانات الطلاب</h4>
           <div id="firstGradFields" style="display:flex; flex-wrap:wrap; justify-content:center; gap:12px">
             <div class="field" style="background:#fff; border:1.5px solid var(--border); padding:12px; border-radius:var(--radius); width:280px; flex:0 0 280px">
               <div style="font-size:12px; font-weight:800; color:var(--primary-dark); margin-bottom:10px; display:flex; align-items:center; gap:6px">
@@ -1369,7 +1369,7 @@ header .spacer { flex: 1; }
               </div>
               <div style="display:flex; flex-direction:column; gap:8px">
                 <div>
-                  <label style="display:block; font-size:10px; font-weight:700; color:var(--text-sub); margin-bottom:4px">🥇 معدل الأول</label>
+                  <label style="display:block; font-size:10px; font-weight:700; color:var(--text-sub); margin-bottom:4px">معدل الطالب الاول</label>
                   <input type="text" placeholder="يرجى الرفع..." disabled style="width:100%; padding:6px 10px; font-family:'Cairo',sans-serif; font-size:12px; background:#f5f5f5; border:1px solid var(--border); border-radius:var(--radius-sm); cursor:not-allowed; outline:none">
                 </div>
                 <div>
@@ -3470,7 +3470,7 @@ function checkExistingDeptsFromServer() {
         summaryDiv.style.background = '#e8f5e9';
         summaryDiv.style.borderColor = '#a5d6a7';
         document.getElementById('importStatusSummaryTitle').innerHTML = '🟢 سنة دراسية جديدة:';
-        summaryText.innerHTML = `هذه السنة الدراسية <b>${escapeHtml(yearInput)}</b> جديدة بالكامل. سيتم استيراد كافة الأوراق المكتشفة كأقسام جديدة.`;
+        summaryText.innerHTML = 'سيتم إنشاء سنة دراسية جديدة.';
         summaryDiv.style.display = 'block';
         return;
       }
@@ -3682,7 +3682,7 @@ function rebuildFirstGradInputs(deptColIdx, gradeColIdx) {
       </div>
       <div style="display:flex; flex-direction:column; gap:8px">
         <div>
-          <label style="display:block; font-size:10px; font-weight:700; color:var(--text-sub); margin-bottom:4px">🥇 معدل الأول</label>
+          <label style="display:block; font-size:10px; font-weight:700; color:var(--text-sub); margin-bottom:4px">معدل الطالب الاول</label>
           <div style="display:flex; gap:6px; align-items:center">
             <input type="text" class="first-grad-dept-input" data-dept="${escapeHtml(dept)}" value="${maxGrade}" readonly placeholder="مثال: 85.342" style="flex:1; padding:6px 10px; font-family:'Cairo',sans-serif; font-size:12px; background:#f0f7f6; border:1px solid var(--border); border-radius:var(--radius-sm); outline:none; font-weight:bold; color:#00796b; transition:all 0.2s">
             <button type="button" class="btn-edit-input" onclick="enableInputEdit(this)" style="padding:4px 8px; font-size:11px; font-family:'Cairo',sans-serif; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); cursor:pointer; color:var(--primary-dark); display:flex; align-items:center; gap:2px">
