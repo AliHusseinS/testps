@@ -78,7 +78,7 @@ try {
       console.log('⚙️ تم العثور على تعديلات جديدة، يتم الآن الرفع إلى GitHub...');
       execSync('git add .', { stdio: 'inherit' });
       execSync('git commit -m "Auto-update & deploy system"', { stdio: 'inherit' });
-      execSync('git push origin Load', { stdio: 'inherit' });
+      execSync('git push -f origin Load', { stdio: 'inherit' });
       console.log('✅ تم رفع كافة الملفات والتعديلات إلى GitHub Pages بنجاح!');
     } else {
       console.log('✅ لا توجد أي تعديلات جديدة للرفع إلى GitHub.');
