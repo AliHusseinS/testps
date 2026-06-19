@@ -1057,6 +1057,69 @@ header .spacer { flex: 1; }
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
   }
+
+  /* ============================================================ */
+  /* 🗺️ تبويبات المنظومة الرئيسية (Main Workspace Tabs Layout) */
+  /* ============================================================ */
+  .main-tabs-container {
+    max-width: 1450px;
+    margin: 0 auto;
+    padding: 0 24px;
+    margin-top: 24px;
+  }
+  .main-tabs {
+    display: flex;
+    gap: 8px;
+    border-bottom: 2px solid var(--border);
+    padding-bottom: 0;
+    overflow-x: auto;
+    scrollbar-width: none; /* Firefox */
+  }
+  .main-tabs::-webkit-scrollbar {
+    display: none; /* Safari and Chrome */
+  }
+  .main-tabs button {
+    background: none;
+    border: none;
+    padding: 14px 22px;
+    font-family: 'Cairo', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-sub);
+    cursor: pointer;
+    position: relative;
+    transition: all 0.25s ease;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  }
+  .main-tabs button:hover {
+    color: var(--primary);
+    background: var(--surface-alt);
+  }
+  .main-tabs button.active {
+    color: var(--primary);
+  }
+  .main-tabs button.active::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--primary);
+    border-radius: 3px;
+  }
+  .main-section {
+    display: none;
+    animation: mainFadeIn 0.4s ease;
+  }
+  @keyframes mainFadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
 </style>
 
 </head>
@@ -1186,6 +1249,24 @@ header .spacer { flex: 1; }
   </button>
 </header>
 
+<!-- ===== شريط التبويبات الرئيسي للمنظومة ===== -->
+<div class="main-tabs-container" id="mainTabsContainer" style="display:none">
+  <div class="main-tabs" id="mainTabs">
+    <button onclick="switchMainTab('analytics')" id="mainTabBtn_analytics" style="display:none">📊 الإحصائيات العامة</button>
+    <button onclick="switchMainTab('lookup')" id="mainTabBtn_lookup" style="display:none">🎓 استعلام الطلاب والسنوات</button>
+    <button onclick="switchMainTab('college')" id="mainTabBtn_college" style="display:none">🏫 إعدادات الكلية</button>
+    <button onclick="switchMainTab('colleges_list')" id="mainTabBtn_colleges_list" style="display:none">🗃️ إدارة الكليات</button>
+    <button onclick="switchMainTab('users_list')" id="mainTabBtn_users_list" style="display:none">👥 حسابات المستخدمين</button>
+    <button onclick="switchMainTab('provision')" id="mainTabBtn_provision" style="display:none">🚀 تجهيز الكليات</button>
+  </div>
+</div>
+
+<!-- ===== الحاوية الرئيسية للمساحة الإدارية والعمليات ===== -->
+<div id="mainWorkspace" style="display:none; max-width:1450px; margin:0 auto; padding:24px">
+
+  <!-- التبويب 1: استعلام الطلاب والسنوات -->
+  <div id="mainSection_lookup" class="main-section" style="display:none">
+
 <!-- ===== شريط البحث ===== -->
 <div class="search-wrapper">
   <div class="search-field">
@@ -1263,6 +1344,8 @@ header .spacer { flex: 1; }
     تصدير تأييد تخرج / دراسات عليا
   </button>
 </div>
+
+  </div> <!-- نهاية mainSection_lookup -->
 
 <!-- ===== Modal: قائمة طلبة السنة (كبير) ===== -->
 <div id="yearStudentsOverlay" class="big-modal-overlay">
@@ -1615,34 +1698,8 @@ header .spacer { flex: 1; }
   </div>
 </div>
 
-<!-- ===== Modal: لوحة التحكم والإعدادات ===== -->
-<div id="settingsOverlay" class="big-modal-overlay">
-  <div class="big-modal-box" style="width:1250px; max-width:96vw">
-    <div class="big-modal-head" style="background:linear-gradient(120deg,var(--primary-dark),var(--primary),#00897B)">
-      <div>
-        <h3>⚙️ لوحة الإعدادات والتحكم</h3>
-        <span id="settingsSubtitle">إدارة إعدادات المنظومة والكليات</span>
-      </div>
-      <div class="ysm-head-actions">
-        <button class="ysm-close" onclick="closeSettingsModal()">✕</button>
-      </div>
-    </div>
-    
-    <!-- تبويبات لوحة التحكم للمدير العام -->
-    <div class="tabs-container" id="settingsTabsContainer" style="display:none">
-      <div class="tabs" id="settingsTabs">
-        <button onclick="switchSettingsTab('analytics')" id="tabBtn_analytics" style="display:none">📊 الإحصائيات العامة</button>
-        <button class="active" onclick="switchSettingsTab('college')" id="tabBtn_college">🏫 إعدادات الكلية</button>
-        <button onclick="switchSettingsTab('colleges_list')">🗃️ إدارة الكليات</button>
-        <button onclick="switchSettingsTab('users_list')">👥 إدارة حسابات المستخدمين</button>
-        <button onclick="switchSettingsTab('provision')">🚀 تجهيز منظومة متكاملة</button>
-      </div>
-    </div>
-    
-    <div class="big-modal-body" style="padding:24px 28px; overflow-y:auto; flex:1">
-      
       <!-- القسم 0: لوحة الإحصائيات والتحليلات العامة -->
-      <div id="settingsSection_analytics" class="settings-section" style="display:none">
+      <div id="mainSection_analytics" class="main-section" style="display:none">
         <!-- شريط الفلاتر والإجراءات -->
         <div class="dashboard-filters">
           <div class="dashboard-filter-group">
@@ -1826,7 +1883,7 @@ header .spacer { flex: 1; }
       </div>
 
       <!-- القسم 1: إعدادات الكلية (لوغو، مستندات) -->
-      <div id="settingsSection_college" class="settings-section">
+      <div id="mainSection_college" class="main-section" style="display:none">
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:20px">
           <div class="field">
             <label>🏫 اسم الكلية (قراءة فقط)</label>
@@ -1890,7 +1947,7 @@ header .spacer { flex: 1; }
       </div>
       
       <!-- القسم 2: إدارة الكليات (المدير العام فقط) -->
-      <div id="settingsSection_colleges_list" class="settings-section" style="display:none">
+      <div id="mainSection_college" class="main-section" style="display:none">
         <!-- إضافة كلية جديدة -->
         <div style="background:var(--surface-alt); padding:16px 20px; border-radius:var(--radius); border:1px solid var(--border); margin-bottom:20px">
           <h4 style="font-size:14px; font-weight:800; color:var(--primary-dark); margin-bottom:12px">➕ تسجيل كلية جديدة في المنظومة</h4>
@@ -1933,7 +1990,7 @@ header .spacer { flex: 1; }
       </div>
       
       <!-- القسم 3: إدارة حسابات المستخدمين (المدير العام فقط) -->
-      <div id="settingsSection_users_list" class="settings-section" style="display:none">
+      <div id="mainSection_users_list" class="main-section" style="display:none">
         <!-- إضافة مستخدم جديد -->
         <div style="background:var(--surface-alt); padding:18px 22px; border-radius:var(--radius); border:1px solid var(--border); margin-bottom:20px">
           <h4 id="addUserFormTitle" style="font-size:14.5px; font-weight:800; color:var(--primary-dark); margin-bottom:14px; border-bottom:1.5px solid var(--border); padding-bottom:8px">➕ إضافة حساب مستخدم جديد</h4>
@@ -1985,7 +2042,7 @@ header .spacer { flex: 1; }
       </div>
 
       <!-- القسم 4: تجهيز منظومة متكاملة (المدير العام فقط) -->
-      <div id="settingsSection_provision" class="settings-section" style="display:none">
+      <div id="mainSection_provision" class="main-section" style="display:none">
         <div style="background:var(--surface-alt); padding:18px 22px; border-radius:var(--radius); border:1px solid var(--border); margin-bottom:20px">
           <h4 style="font-size:14.5px; font-weight:800; color:var(--primary-dark); margin-bottom:14px; border-bottom:1.5px solid var(--border); padding-bottom:8px">👤 1. الحساب الإداري للكلية (Admin Account)</h4>
           <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:14px">
@@ -2064,10 +2121,10 @@ header .spacer { flex: 1; }
         </div>
       </div>
       
-    </div>
-    <div class="big-modal-foot" id="settingsFoot">—</div>
-  </div>
-</div>
+  <!-- شريط الحالة (Footer) للمساحة الإدارية -->
+  <div class="main-workspace-foot" id="settingsFoot" style="margin-top:24px; padding:12px 20px; background:var(--surface-alt); border:1px solid var(--border); border-radius:var(--radius-sm); text-align:center; color:var(--text-sub); font-size:13px; font-weight:700">—</div>
+
+</div> <!-- نهاية mainWorkspace -->
 
 <div id="toast"></div>
 
@@ -2610,9 +2667,6 @@ function xlogin() {
           showToast('✅ مرحباً ' + d.username, 'success');
           // تحميل البيانات
           loadAllStudents();
-          if (role === 'superadmin') {
-            setTimeout(openSettingsModal, 600);
-          }
         }, 400);
 
       } else {
@@ -3104,11 +3158,9 @@ document.addEventListener('click', function(e) {
   const dbOverlay = document.getElementById('databaseOverlay');
   const logsOverlay = document.getElementById('logsOverlay');
   const importOverlay = document.getElementById('importOverlay');
-  const settingsOverlay = document.getElementById('settingsOverlay');
   if (e.target === dbOverlay) closeDatabaseModal();
   if (e.target === logsOverlay) closeLogsModal();
   if (e.target === importOverlay) closeImportModal();
-  if (e.target === settingsOverlay) closeSettingsModal();
 });
 
 
@@ -3131,9 +3183,6 @@ function checkSession() {
     showUserBadge(savedUser, savedRole);
     updateCollegeUI(savedCollegeName, savedLogoUrl);
     loadAllStudents();
-    if (savedRole === 'superadmin') {
-      setTimeout(openSettingsModal, 600);
-    }
   }
   // وإلا → اترك شاشة تسجيل الدخول مرئية
 }
@@ -3250,6 +3299,9 @@ function loadAllStudents() {
       }, 500);
 
       showToast(`✅ تم تحميل ${_allStudents.length} طالب من ${_yearSheetsData.length} سنة`, "success");
+      
+      const role = sessionStorage.getItem('xlRole') || 'editor';
+      initMainNavigation(role);
     })
     .catch(err => {
       console.error('Load error:', err);
@@ -4399,30 +4451,88 @@ function submitImportData() {
 // ============================================================
 let _collegesList = [];
 
-function openSettingsModal() {
-  const role = sessionStorage.getItem('xlRole') || '';
-  const tabsContainer = document.getElementById('settingsTabsContainer');
-  const analyticsTabBtn = document.querySelectorAll('#settingsTabs button')[0];
-  const collegeTabBtn = document.querySelectorAll('#settingsTabs button')[1];
-  
+function initMainNavigation(role) {
+  const tabIds = ['analytics', 'lookup', 'college', 'colleges_list', 'users_list', 'provision'];
+  tabIds.forEach(id => {
+    const btn = document.getElementById('mainTabBtn_' + id);
+    if (btn) btn.style.display = 'none';
+  });
+
+  const workspaceVisible = (document.getElementById('mainWorkspace').style.display === 'block');
+
+  document.getElementById('mainTabsContainer').style.display = 'block';
+  document.getElementById('mainWorkspace').style.display = 'block';
+
   if (role === 'superadmin') {
-    tabsContainer.style.display = 'block';
-    if (analyticsTabBtn) analyticsTabBtn.style.display = 'inline-block';
-    if (collegeTabBtn) collegeTabBtn.style.display = 'none';
-    switchSettingsTab('analytics');
+    tabIds.forEach(id => {
+      const btn = document.getElementById('mainTabBtn_' + id);
+      if (btn) btn.style.display = 'inline-flex';
+    });
+    if (!workspaceVisible) {
+      switchMainTab('analytics');
+    } else {
+      const currentActive = tabIds.find(id => {
+        const btn = document.getElementById('mainTabBtn_' + id);
+        return btn && btn.classList.contains('active');
+      });
+      switchMainTab(currentActive || 'analytics');
+    }
+  } else if (role === 'admin') {
+    document.getElementById('mainTabBtn_analytics').style.display = 'inline-flex';
+    document.getElementById('mainTabBtn_lookup').style.display = 'inline-flex';
+    document.getElementById('mainTabBtn_college').style.display = 'inline-flex';
+    if (!workspaceVisible) {
+      switchMainTab('lookup');
+    } else {
+      const currentActive = tabIds.find(id => {
+        const btn = document.getElementById('mainTabBtn_' + id);
+        return btn && btn.classList.contains('active');
+      });
+      switchMainTab(currentActive || 'lookup');
+    }
   } else {
-    tabsContainer.style.display = 'none';
-    if (analyticsTabBtn) analyticsTabBtn.style.display = 'none';
-    if (collegeTabBtn) collegeTabBtn.style.display = 'inline-block';
-    loadCollegeSettings();
-    switchSettingsTab('college');
+    document.getElementById('mainTabsContainer').style.display = 'none';
+    switchMainTab('lookup');
   }
-  
-  document.getElementById('settingsOverlay').classList.add('open');
+}
+
+function switchMainTab(tabName) {
+  const tabIds = ['analytics', 'lookup', 'college', 'colleges_list', 'users_list', 'provision'];
+  tabIds.forEach(id => {
+    const btn = document.getElementById('mainTabBtn_' + id);
+    if (btn) btn.classList.remove('active');
+  });
+
+  const activeBtn = document.getElementById('mainTabBtn_' + tabName);
+  if (activeBtn) activeBtn.classList.add('active');
+
+  const sections = document.querySelectorAll('.main-section');
+  sections.forEach(sec => sec.style.display = 'none');
+
+  const activeSec = document.getElementById('mainSection_' + tabName);
+  if (activeSec) {
+    activeSec.style.display = 'block';
+  }
+
+  if (tabName === 'analytics') {
+    loadGlobalAnalytics();
+  } else if (tabName === 'college') {
+    loadCollegeSettings();
+  } else if (tabName === 'colleges_list') {
+    loadCollegesList();
+  } else if (tabName === 'users_list') {
+    loadUsersList();
+  } else if (tabName === 'provision') {
+    document.getElementById('settingsFoot').textContent = 'جاهز لتجهيز منظومة متكاملة';
+  }
+}
+
+function openSettingsModal() {
+  switchMainTab('college');
 }
 
 function closeSettingsModal() {
-  document.getElementById('settingsOverlay').classList.remove('open');
+  switchMainTab('lookup');
 }
 
 function loadCollegeSettings() {
@@ -4503,38 +4613,6 @@ function saveCollegeSettings() {
       showToast('❌ خطأ: ' + (err.message || err), 'error');
       document.getElementById('settingsFoot').textContent = 'خطأ في الحفظ';
     });
-}
-
-function switchSettingsTab(tabName) {
-  const buttons = document.querySelectorAll('#settingsTabs button');
-  buttons.forEach(btn => btn.classList.remove('active'));
-  
-  const tabIndexMap = {
-    'analytics': 0,
-    'college': 1,
-    'colleges_list': 2,
-    'users_list': 3,
-    'provision': 4
-  };
-  
-  const activeBtn = buttons[tabIndexMap[tabName]];
-  if (activeBtn) activeBtn.classList.add('active');
-  
-  const sections = document.querySelectorAll('.settings-section');
-  sections.forEach(sec => sec.style.display = 'none');
-  
-  const secEl = document.getElementById('settingsSection_' + tabName);
-  if (secEl) secEl.style.display = 'block';
-  
-  if (tabName === 'analytics') {
-    loadGlobalAnalytics();
-  } else if (tabName === 'colleges_list') {
-    loadCollegesList();
-  } else if (tabName === 'users_list') {
-    loadUsersList();
-  } else if (tabName === 'provision') {
-    document.getElementById('settingsFoot').textContent = 'جاهز لتجهيز منظومة متكاملة';
-  }
 }
 
 function loadCollegesList() {
