@@ -1702,7 +1702,7 @@ header .spacer { flex: 1; }
       <div id="mainSection_analytics" class="main-section" style="display:none">
         <!-- شريط الفلاتر والإجراءات -->
         <div class="dashboard-filters">
-          <div class="dashboard-filter-group">
+          <div class="dashboard-filter-group" id="dbFilterCollegeGroup">
             <label>🏫 تصفية حسب الكلية:</label>
             <select id="dbFilterCollege" onchange="applyDashboardFilters()">
               <option value="ALL">كل الكليات والمؤسسات</option>
@@ -1746,7 +1746,7 @@ header .spacer { flex: 1; }
             <div class="kpi-value" id="dbKpiDepts">-</div>
             <div class="kpi-trend" id="dbKpiDeptsDetail">برامج مفعلة</div>
           </div>
-          <div class="dashboard-kpi-card" style="background: linear-gradient(135deg, #7B1FA2, #4A148C);">
+          <div class="dashboard-kpi-card" id="dbKpiUsersCard" style="background: linear-gradient(135deg, #7B1FA2, #4A148C);">
             <div class="kpi-icon">👥</div>
             <div class="kpi-title">حسابات المستخدمين</div>
             <div class="kpi-value" id="dbKpiUsers">-</div>
@@ -4468,6 +4468,10 @@ function initMainNavigation(role) {
       const btn = document.getElementById('mainTabBtn_' + id);
       if (btn) btn.style.display = 'inline-flex';
     });
+    const tabAnalyticsBtn = document.getElementById('mainTabBtn_analytics');
+    if (tabAnalyticsBtn) {
+      tabAnalyticsBtn.textContent = '📊 الإحصائيات العامة';
+    }
     if (!workspaceVisible) {
       switchMainTab('analytics');
     } else {
@@ -4478,7 +4482,11 @@ function initMainNavigation(role) {
       switchMainTab(currentActive || 'analytics');
     }
   } else if (role === 'admin') {
-    document.getElementById('mainTabBtn_analytics').style.display = 'inline-flex';
+    const tabAnalyticsBtn = document.getElementById('mainTabBtn_analytics');
+    if (tabAnalyticsBtn) {
+      tabAnalyticsBtn.style.display = 'inline-flex';
+      tabAnalyticsBtn.textContent = '📊 إحصائيات الكلية';
+    }
     document.getElementById('mainTabBtn_lookup').style.display = 'inline-flex';
     document.getElementById('mainTabBtn_college').style.display = 'inline-flex';
     if (!workspaceVisible) {
@@ -5073,8 +5081,23 @@ function populateDashboardFilters(data) {
     });
   }
   
-  if (Array.from(collegeSel.options).some(o => o.value === prevCollege)) {
-    collegeSel.value = prevCollege;
+  const role = sessionStorage.getItem('xlRole') || 'editor';
+  const collegeGroup = document.getElementById('dbFilterCollegeGroup');
+  const usersCard = document.getElementById('dbKpiUsersCard');
+
+  if (role === 'admin') {
+    if (collegeGroup) collegeGroup.style.display = 'none';
+    if (usersCard) usersCard.style.display = 'none';
+    
+    const myCollege = sessionStorage.getItem('xlCollegeName') || '';
+    collegeSel.value = myCollege;
+  } else {
+    if (collegeGroup) collegeGroup.style.display = 'block';
+    if (usersCard) usersCard.style.display = 'block';
+    
+    if (Array.from(collegeSel.options).some(o => o.value === prevCollege)) {
+      collegeSel.value = prevCollege;
+    }
   }
   
   // 2. ملء السنوات الدراسية
@@ -5186,8 +5209,17 @@ function applyDashboardFilters() {
   const avgGpaValue = gpaCount > 0 ? parseFloat((sumGpa / gpaCount).toFixed(2)) : 0;
   
   // تحديث بطاقات الأداء KPIs
-  document.getElementById('dbKpiColleges').textContent = collegeVal === 'ALL' ? activeColleges.size : 1;
-  document.getElementById('dbKpiCollegesDetail').textContent = collegeVal === 'ALL' ? 'كلية مسجلة ونشطة' : collegeVal;
+  const role = sessionStorage.getItem('xlRole') || 'editor';
+  const kpiCollegeCardTitle = document.querySelector('#dbKpiColleges').parentElement.querySelector('.kpi-title');
+  if (role === 'admin') {
+    if (kpiCollegeCardTitle) kpiCollegeCardTitle.textContent = 'الكلية الحالية';
+    document.getElementById('dbKpiColleges').textContent = '١';
+    document.getElementById('dbKpiCollegesDetail').textContent = sessionStorage.getItem('xlCollegeName');
+  } else {
+    if (kpiCollegeCardTitle) kpiCollegeCardTitle.textContent = 'الكليات والمؤسسات';
+    document.getElementById('dbKpiColleges').textContent = collegeVal === 'ALL' ? activeColleges.size : 1;
+    document.getElementById('dbKpiCollegesDetail').textContent = collegeVal === 'ALL' ? 'كلية مسجلة ونشطة' : collegeVal;
+  }
   
   document.getElementById('dbKpiDepts').textContent = activeDepts.size;
   document.getElementById('dbKpiDeptsDetail').textContent = deptVal === 'ALL' ? 'قسم علمي وفرع مفعل' : deptVal;
