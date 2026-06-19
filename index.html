@@ -1339,18 +1339,18 @@ header .spacer { flex: 1; }
           <div style="display:flex; flex-direction:column">
             <label style="display:block; font-size:13px; font-weight:700; color:var(--text-sub); margin-bottom:8px">📄 حدد أوراق العمل المراد استيرادها:</label>
             <div id="importSheetsContainer" style="display:flex; flex-direction:column; flex:1">
-              <div id="importSheetsList" style="display:flex; flex-direction:column; gap:8px; background:var(--surface-trans); border:1.5px solid var(--border); border-radius:var(--radius); padding:12px; height:250px; overflow-y:auto; box-sizing:border-box; justify-content:center; align-items:center; color:var(--text-muted); font-size:13px; text-align:center">
+              <div id="importSheetsList" style="display:flex; flex-direction:column; gap:8px; background:var(--surface-trans); border:1.5px solid var(--border); border-radius:var(--radius); padding:12px; height:145px; overflow-y:auto; box-sizing:border-box; justify-content:center; align-items:center; color:var(--text-muted); font-size:13px; text-align:center">
                 📂 يرجى اختيار ملف Excel لعرض أوراق العمل المتوفرة...
+              </div>
+              <div style="margin-top:12px; display:flex; flex-direction:column; gap:6px">
+                <label style="display:block; font-size:12px; font-weight:700; color:var(--text-sub)">⚙️ طريقة استيراد البيانات في حال وجود السنة مسبقاً:</label>
+                <select id="importModeSelect" style="width:100%; padding:8px 12px; font-family:'Cairo',sans-serif; font-size:12px; background:var(--surface-alt); border:1.5px solid var(--border); border-radius:var(--radius); outline:none; color:var(--text-main); cursor:pointer">
+                  <option value="merge" selected>➕ دمج ذكي (تحديث الأقسام المرفوعة فقط والحفاظ على الأقسام الأخرى)</option>
+                  <option value="overwrite">🔄 استبدال كامل (مسح جميع بيانات السنة الحالية واستيراد الجديد فقط)</option>
+                </select>
               </div>
             </div>
           </div>
-        </div>
-        <div style="margin-bottom:20px; display:grid; grid-template-columns:1fr; gap:8px">
-          <label style="display:block; font-size:13px; font-weight:700; color:var(--text-sub)">⚙️ طريقة استيراد البيانات في حال وجود السنة مسبقاً:</label>
-          <select id="importModeSelect" style="width:100%; padding:10px 14px; font-family:'Cairo',sans-serif; font-size:13px; background:var(--surface-alt); border:1.5px solid var(--border); border-radius:var(--radius); outline:none; color:var(--text-main); cursor:pointer">
-            <option value="merge" selected>➕ دمج ذكي (تحديث الأقسام المرفوعة فقط والحفاظ على الأقسام الأخرى)</option>
-            <option value="overwrite">🔄 استبدال كامل (مسح جميع بيانات السنة الحالية واستيراد الجديد فقط)</option>
-          </select>
         </div>
         
         <!-- لوحة تنبيهات الاستيراد الذكي بالقسم -->
@@ -1362,8 +1362,8 @@ header .spacer { flex: 1; }
         <!-- معدلات وأعداد الطلبة الأوائل حسب الأقسام (ديناميكي ومخفي افتراضياً) -->
         <div id="firstGradContainer" style="display:none; background:var(--surface-alt); padding:16px 20px; border-radius:var(--radius); border:1px solid var(--border); margin-bottom:20px; transition:opacity 0.3s">
           <h4 id="firstGradTitle" style="font-size:13px; font-weight:800; color:var(--primary-dark); margin-bottom:12px; border-bottom:1.5px solid var(--border); padding-bottom:6px">🥇 معدل الأول والعدد الكلي للأقسام (يدوي):</h4>
-          <div id="firstGradFields" style="display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:12px">
-            <div class="field" style="background:#fff; border:1.5px solid var(--border); padding:12px; border-radius:var(--radius); width:100%">
+          <div id="firstGradFields" style="display:flex; flex-wrap:wrap; justify-content:center; gap:12px">
+            <div class="field" style="background:#fff; border:1.5px solid var(--border); padding:12px; border-radius:var(--radius); width:280px; flex:0 0 280px">
               <div style="font-size:12px; font-weight:800; color:var(--primary-dark); margin-bottom:10px; display:flex; align-items:center; gap:6px">
                 🏢 <span>القسم المتوقع</span>
               </div>
@@ -3669,6 +3669,8 @@ function rebuildFirstGradInputs(deptColIdx, gradeColIdx) {
     div.style.border = '1.5px solid var(--border)';
     div.style.padding = '12px';
     div.style.borderRadius = 'var(--radius)';
+    div.style.width = '280px';
+    div.style.flex = '0 0 280px';
 
     div.innerHTML = `
       <div style="font-size:12px; font-weight:800; color:var(--primary-dark); margin-bottom:10px; display:flex; align-items:center; gap:6px">
