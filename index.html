@@ -1344,7 +1344,7 @@ header .spacer { flex: 1; }
               </div>
               <div style="margin-top:12px; display:flex; flex-direction:column; gap:6px">
                 <label style="display:block; font-size:12px; font-weight:700; color:var(--text-sub)">⚙️ طريقة استيراد البيانات :</label>
-                <select id="importModeSelect" style="width:100%; padding:8px 12px; font-family:'Cairo',sans-serif; font-size:12px; background:var(--surface-alt); border:1.5px solid var(--border); border-radius:var(--radius); outline:none; color:var(--text-main); cursor:pointer">
+                <select id="importModeSelect" onchange="checkExistingDeptsFromServer()" style="width:100%; padding:8px 12px; font-family:'Cairo',sans-serif; font-size:12px; background:var(--surface-alt); border:1.5px solid var(--border); border-radius:var(--radius); outline:none; color:var(--text-main); cursor:pointer">
                   <option value="merge" selected>➕ إضافة بيانات جديدة / أو تحديث البيانات (تحديث الأقسام المرفوعة فقط والحفاظ على الأقسام الأخرى)</option>
                   <option value="overwrite">🔄 استبدال كامل لكافة البيانات (حذف السجلات السابقة واستيراد الملف الجديد بالكامل)</option>
                 </select>
@@ -3476,6 +3476,25 @@ function checkExistingDeptsFromServer() {
       }
       
       const existing = res.departments.map(d => String(d).trim());
+      
+      const importMode = document.getElementById('importModeSelect').value;
+      if (importMode === 'overwrite') {
+        summaryDiv.style.background = '#ffebee';
+        summaryDiv.style.borderColor = '#ef9a9a';
+        document.getElementById('importStatusSummaryTitle').innerHTML = '⚠️ تحذير: استبدال كامل للبيانات:';
+        
+        let html = `سيتم <b>حذف كافة سجلات الطلاب والأقسام الحالية</b> المخزنة لهذه السنة الدراسية (<b>${escapeHtml(yearInput)}</b>) نهائياً، واستبدالها بالبيانات الجديدة من الملف المرفوع.<br>`;
+        html += `<div style="margin-top: 8px; font-weight: bold; color: #c62828">الأقسام الحالية المخزنة في النظام والتي سيتم مسحها واستبدالها:</div>`;
+        html += `<ul style="margin: 4px 18px 0 0; padding: 0; list-style-type: square; color: #b71c1c">`;
+        existing.forEach(u => {
+          html += `<li>${escapeHtml(u)}</li>`;
+        });
+        html += `</ul>`;
+        summaryText.innerHTML = html;
+        summaryDiv.style.display = 'block';
+        return;
+      }
+      
       const duplicates = [];
       const added = [];
       
