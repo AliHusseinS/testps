@@ -1,6 +1,7 @@
-node_modules/
-.clasp.json
-gas-deploy/
-.DS_Store
-*.log
-script.txt
+# Ignore everything by default
+*
+
+# Except these files
+!index.html
+!CNAME
+!.gitignore
