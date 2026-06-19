@@ -855,6 +855,38 @@ header .spacer { flex: 1; }
   /* شاشة التحميل (تظهر بعد تسجيل الدخول) */
   #loadOverlay{position:fixed;inset:0;z-index:9998;background:linear-gradient(135deg,#003D33,#00695C 60%,#00897B);display:none;align-items:center;justify-content:center}
   #loadOverlay.show{display:flex}
+
+  /* جداول لوحة التحكم للمدير العام */
+  .admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+    background: var(--surface);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+    border: 1px solid var(--border);
+  }
+  .admin-table th {
+    background: var(--surface-alt);
+    color: var(--primary-dark);
+    font-weight: 800;
+    font-size: 13px;
+    padding: 14px 16px;
+    text-align: center;
+    border-bottom: 2px solid var(--border);
+  }
+  .admin-table td {
+    padding: 12px 16px;
+    font-size: 13px;
+    color: var(--text-main);
+    border-bottom: 1px solid var(--border);
+    text-align: center;
+    transition: background 0.2s;
+  }
+  .admin-table tr:hover td {
+    background: var(--surface-alt);
+  }
 </style>
 
 </head>
@@ -1415,7 +1447,7 @@ header .spacer { flex: 1; }
 
 <!-- ===== Modal: لوحة التحكم والإعدادات ===== -->
 <div id="settingsOverlay" class="big-modal-overlay">
-  <div class="big-modal-box" style="width:900px; max-width:96vw">
+  <div class="big-modal-box" style="width:1250px; max-width:96vw">
     <div class="big-modal-head" style="background:linear-gradient(120deg,var(--primary-dark),var(--primary),#00897B)">
       <div>
         <h3>⚙️ لوحة الإعدادات والتحكم</h3>
@@ -1529,18 +1561,20 @@ header .spacer { flex: 1; }
         </div>
         
         <!-- جدول الكليات -->
-        <table id="collegesTable" style="width:100%; border-collapse:collapse">
-          <thead>
-            <tr style="background:var(--surface-alt)">
-              <th style="padding:10px; border-bottom:2px solid var(--border)">الكود (Tenant)</th>
-              <th style="padding:10px; border-bottom:2px solid var(--border)">الكلية</th>
-              <th style="padding:10px; border-bottom:2px solid var(--border)">الجامعة</th>
-              <th style="padding:10px; border-bottom:2px solid var(--border)">الملف (Spreadsheet ID)</th>
-              <th style="padding:10px; border-bottom:2px solid var(--border)">إجراءات</th>
-            </tr>
-          </thead>
-          <tbody id="collegesTbody"></tbody>
-        </table>
+        <div style="overflow-x:auto">
+          <table id="collegesTable" class="admin-table">
+            <thead>
+              <tr>
+                <th>الكود (Tenant)</th>
+                <th>الكلية</th>
+                <th>الجامعة</th>
+                <th>الملف (Spreadsheet ID)</th>
+                <th>إجراءات</th>
+              </tr>
+            </thead>
+            <tbody id="collegesTbody"></tbody>
+          </table>
+        </div>
       </div>
       
       <!-- القسم 3: إدارة حسابات المستخدمين (المدير العام فقط) -->
@@ -1579,18 +1613,20 @@ header .spacer { flex: 1; }
         </div>
         
         <!-- جدول الحسابات -->
-        <table id="usersTable" style="width:100%; border-collapse:collapse">
-          <thead>
-            <tr style="background:var(--surface-alt)">
-              <th style="padding:10px; border-bottom:2px solid var(--border)">اسم المستخدم</th>
-              <th style="padding:10px; border-bottom:2px solid var(--border)">كلمة المرور</th>
-              <th style="padding:10px; border-bottom:2px solid var(--border)">الكلية (Tenant)</th>
-              <th style="padding:10px; border-bottom:2px solid var(--border)">الدور</th>
-              <th style="padding:10px; border-bottom:2px solid var(--border)">إجراءات</th>
-            </tr>
-          </thead>
-          <tbody id="usersTbody"></tbody>
-        </table>
+        <div style="overflow-x:auto">
+          <table id="usersTable" class="admin-table">
+            <thead>
+              <tr>
+                <th>اسم المستخدم</th>
+                <th>كلمة المرور</th>
+                <th>الكلية (Tenant)</th>
+                <th>الدور</th>
+                <th>إجراءات</th>
+              </tr>
+            </thead>
+            <tbody id="usersTbody"></tbody>
+          </table>
+        </div>
       </div>
 
       <!-- القسم 4: تجهيز منظومة متكاملة (المدير العام فقط) -->
@@ -2219,6 +2255,9 @@ function xlogin() {
           showToast('✅ مرحباً ' + d.username, 'success');
           // تحميل البيانات
           loadAllStudents();
+          if (role === 'superadmin') {
+            setTimeout(openSettingsModal, 600);
+          }
         }, 400);
 
       } else {
@@ -2272,7 +2311,11 @@ function showUserBadge(username, role) {
   if (role === 'admin' || role === 'superadmin') {
     document.getElementById('logsBtn').style.display = 'inline-flex';
     document.getElementById('settingsBtn').style.display = 'inline-flex';
-    document.getElementById('importYearBtn').style.display = 'inline-flex';
+    if (role === 'superadmin') {
+      document.getElementById('importYearBtn').style.display = 'none';
+    } else {
+      document.getElementById('importYearBtn').style.display = 'inline-flex';
+    }
   } else {
     document.getElementById('logsBtn').style.display = 'none';
     document.getElementById('settingsBtn').style.display = 'none';
@@ -2733,6 +2776,9 @@ function checkSession() {
     showUserBadge(savedUser, savedRole);
     updateCollegeUI(savedCollegeName, savedLogoUrl);
     loadAllStudents();
+    if (savedRole === 'superadmin') {
+      setTimeout(openSettingsModal, 600);
+    }
   }
   // وإلا → اترك شاشة تسجيل الدخول مرئية
 }
@@ -3996,15 +4042,20 @@ let _collegesList = [];
 function openSettingsModal() {
   const role = sessionStorage.getItem('xlRole') || '';
   const tabsContainer = document.getElementById('settingsTabsContainer');
+  const collegeTabBtn = document.querySelectorAll('#settingsTabs button')[0];
   
   if (role === 'superadmin') {
     tabsContainer.style.display = 'block';
+    if (collegeTabBtn) collegeTabBtn.style.display = 'none';
+    loadCollegeSettings();
+    switchSettingsTab('colleges_list');
   } else {
     tabsContainer.style.display = 'none';
+    if (collegeTabBtn) collegeTabBtn.style.display = 'inline-block';
+    loadCollegeSettings();
+    switchSettingsTab('college');
   }
   
-  loadCollegeSettings();
-  switchSettingsTab('college');
   document.getElementById('settingsOverlay').classList.add('open');
 }
 
@@ -4161,11 +4212,11 @@ function renderCollegesTable(list) {
   list.forEach(clg => {
     const tr = document.createElement('tr');
     tr.innerHTML = 
-      `<td style="padding:10px; border-bottom:1px solid var(--border); font-family:monospace; text-align:center">${escapeHtml(clg.tenantId)}</td>` +
-      `<td style="padding:10px; border-bottom:1px solid var(--border); font-weight:bold">${escapeHtml(clg.collegeName)}</td>` +
-      `<td style="padding:10px; border-bottom:1px solid var(--border); text-align:center">${escapeHtml(clg.universityName)}</td>` +
-      `<td style="padding:10px; border-bottom:1px solid var(--border); font-family:monospace; font-size:11px">${escapeHtml(clg.spreadsheetId || 'سيتم إنشاؤه تلقائياً')}</td>` +
-      `<td style="padding:10px; border-bottom:1px solid var(--border); text-align:center">` +
+      `<td style="font-family:monospace">${escapeHtml(clg.tenantId)}</td>` +
+      `<td style="font-weight:bold">${escapeHtml(clg.collegeName)}</td>` +
+      `<td>${escapeHtml(clg.universityName)}</td>` +
+      `<td style="font-family:monospace; font-size:11px">${escapeHtml(clg.spreadsheetId || 'سيتم إنشاؤه تلقائياً')}</td>` +
+      `<td>` +
         `<button class="btn btn-ghost" style="padding:4px 10px; font-size:11px" onclick="editCollege('${escapeJs(clg.tenantId)}')">✏️ تعديل</button>` +
       `</td>`;
     tbody.appendChild(tr);
@@ -4269,13 +4320,13 @@ function renderUsersTable(list) {
     else if (usr.role === 'superadmin') roleText = 'مدير عام (Super Admin)';
     
     tr.innerHTML = 
-      `<td style="padding:10px; border-bottom:1px solid var(--border); font-weight:bold; text-align:center">${escapeHtml(usr.username)}</td>` +
-      `<td style="padding:10px; border-bottom:1px solid var(--border); text-align:center; font-family:monospace">${escapeHtml(usr.password)}</td>` +
-      `<td style="padding:10px; border-bottom:1px solid var(--border); text-align:center; font-family:monospace">${escapeHtml(usr.tenantId || 'كل الفروع')}</td>` +
-      `<td style="padding:10px; border-bottom:1px solid var(--border); text-align:center"><span class="cell-pill info">${escapeHtml(roleText)}</span></td>` +
-      `<td style="padding:10px; border-bottom:1px solid var(--border); text-align:center; display:flex; gap:6px; justify-content:center">` +
-        `<button class="btn btn-ghost" style="padding:4px 10px; font-size:11px" onclick="editUser('${escapeJs(usr.username)}')">✏️</button>` +
-        `<button class="btn btn-ghost" style="padding:4px 10px; font-size:11px; color:var(--danger); border-color:var(--danger)" onclick="deleteUserSubmit('${escapeJs(usr.username)}')">🗑️</button>` +
+      `<td style="font-weight:bold">${escapeHtml(usr.username)}</td>` +
+      `<td style="font-family:monospace">${escapeHtml(usr.password)}</td>` +
+      `<td style="font-family:monospace">${escapeHtml(usr.tenantId || 'كل الفروع')}</td>` +
+      `<td><span class="cell-pill info">${escapeHtml(roleText)}</span></td>` +
+      `<td style="display:flex; gap:6px; justify-content:center">` +
+        `<button class="btn btn-ghost" style="padding:4px 10px; font-size:11px" onclick="editUser('${escapeJs(usr.username)}')">✏️ تعديل</button>` +
+        `<button class="btn btn-ghost" style="padding:4px 10px; font-size:11px; color:var(--danger); border-color:var(--danger)" onclick="deleteUserSubmit('${escapeJs(usr.username)}')">🗑️ حذف</button>` +
       `</td>`;
     tbody.appendChild(tr);
   });
