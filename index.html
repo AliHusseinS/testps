@@ -1320,8 +1320,22 @@ header .spacer { flex: 1; }
       <div id="importStep1">
         <!-- حقل رفع الملف كامل العرض في الأعلى -->
         <div style="margin-bottom:20px">
-          <label style="display:block; font-size:13px; font-weight:700; color:var(--text-sub); margin-bottom:6px">📁 ملف البيانات (Excel/CSV) *</label>
-          <input type="file" id="importFileInput" accept=".xlsx, .xls, .csv" style="width:100%; padding:10px 14px; font-family:'Cairo',sans-serif; font-size:13px; background:var(--surface-alt); border:1.5px solid var(--border); border-radius:var(--radius)" onchange="handleImportFileSelect()">
+          <label style="display:block; font-size:13px; font-weight:700; color:var(--text-sub); margin-bottom:8px">📁 ملف البيانات (Excel/CSV) *</label>
+          <input type="file" id="importFileInput" accept=".xlsx, .xls, .csv" style="display:none" onchange="handleImportFileSelect()">
+          
+          <div id="importDropZone" onclick="document.getElementById('importFileInput').click()" style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:32px 24px; border:2px dashed var(--border); border-radius:var(--radius); background:var(--surface-trans); cursor:pointer; text-align:center; transition:all 0.23s ease-in-out; outline:none; box-sizing:border-box" onmouseover="this.style.borderColor='var(--primary)'; this.style.background='var(--surface-alt)'" onmouseout="this.style.borderColor='var(--border)'; this.style.background='var(--surface-trans)'">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--primary-dark); margin-bottom:12px; transition:transform 0.2s" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform='none'">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="17 8 12 3 7 8"/>
+              <line x1="12" y1="3" x2="12" y2="15"/>
+            </svg>
+            <div style="font-size:13px; font-weight:800; color:var(--text-main); margin-bottom:6px">اسحب وأفلت ملف Excel هنا أو اضغط للاختيار</div>
+            <div style="font-size:11px; color:var(--text-muted)">يدعم صيغ Excel (.xlsx, .xls) أو ملفات CSV</div>
+            
+            <div id="importFileStatusBadge" style="display:none; margin-top:12px; padding:6px 12px; background:var(--primary-light); border:1px solid var(--primary); color:var(--primary-dark); font-size:11px; font-weight:800; border-radius:30px; align-items:center; gap:6px; transition:all 0.2s">
+              📂 <span id="importFileNameText"></span>
+            </div>
+          </div>
         </div>
 
         <!-- شبكة السنوات والأوراق المتطابقة جنباً إلى جنب -->
@@ -3187,6 +3201,13 @@ function openImportModal() {
   document.getElementById('importSubmitBtn').disabled = true;
   document.getElementById('importSubmitBtn').textContent = 'بدء استيراد البيانات 🚀';
   
+  const badge = document.getElementById('importFileStatusBadge');
+  const nameText = document.getElementById('importFileNameText');
+  if (badge && nameText) {
+    badge.style.display = 'none';
+    nameText.textContent = '';
+  }
+  
   // تهيئة حقول اختيار الأوراق
   const listDiv = document.getElementById('importSheetsList');
   listDiv.innerHTML = '📂 يرجى اختيار ملف Excel لعرض أوراق العمل المتوفرة...';
@@ -3209,6 +3230,13 @@ function handleImportFileSelect() {
   const fileInput = document.getElementById('importFileInput');
   const file = fileInput.files[0];
   if (!file) return;
+
+  const badge = document.getElementById('importFileStatusBadge');
+  const nameText = document.getElementById('importFileNameText');
+  if (badge && nameText) {
+    nameText.textContent = file.name;
+    badge.style.display = 'inline-flex';
+  }
 
   const reader = new FileReader();
   reader.onload = function(e) {
@@ -4447,12 +4475,49 @@ function submitProvisionNewSystem() {
     });
 }
 
+function initImportDragAndDrop() {
+  const dropZone = document.getElementById('importDropZone');
+  const fileInput = document.getElementById('importFileInput');
+  if (!dropZone || !fileInput) return;
+
+  ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+    dropZone.addEventListener(eventName, e => {
+      e.preventDefault();
+      e.stopPropagation();
+    }, false);
+  });
+
+  ['dragenter', 'dragover'].forEach(eventName => {
+    dropZone.addEventListener(eventName, () => {
+      dropZone.style.borderColor = 'var(--primary)';
+      dropZone.style.background = 'var(--surface-alt)';
+    }, false);
+  });
+
+  ['dragleave', 'drop'].forEach(eventName => {
+    dropZone.addEventListener(eventName, () => {
+      dropZone.style.borderColor = 'var(--border)';
+      dropZone.style.background = 'var(--surface-trans)';
+    }, false);
+  });
+
+  dropZone.addEventListener('drop', e => {
+    const dt = e.dataTransfer;
+    const files = dt.files;
+    if (files.length > 0) {
+      fileInput.files = files;
+      handleImportFileSelect();
+    }
+  });
+}
+
 // ============================================================
 // 🚀 بدء التشغيل
 // ============================================================
 window.addEventListener('load', function() {
   initTheme();
   initYearSelectorGrid();
+  initImportDragAndDrop();
   
   // تفعيل التحقق من حقل حذف السنة الدراسية
   const deleteConfirmInput = document.getElementById('deleteYearConfirmInput');
