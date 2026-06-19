@@ -1345,17 +1345,17 @@ header .spacer { flex: 1; }
               <div style="margin-top:12px; display:flex; flex-direction:column; gap:6px">
                 <label style="display:block; font-size:12px; font-weight:700; color:var(--text-sub)">⚙️ طريقة استيراد البيانات في حال وجود السنة مسبقاً:</label>
                 <select id="importModeSelect" style="width:100%; padding:8px 12px; font-family:'Cairo',sans-serif; font-size:12px; background:var(--surface-alt); border:1.5px solid var(--border); border-radius:var(--radius); outline:none; color:var(--text-main); cursor:pointer">
-                  <option value="merge" selected>➕ دمج ذكي (تحديث الأقسام المرفوعة فقط والحفاظ على الأقسام الأخرى)</option>
-                  <option value="overwrite">🔄 استبدال كامل (مسح جميع بيانات السنة الحالية واستيراد الجديد فقط)</option>
+                  <option value="merge" selected>➕ إضافة بيانات جديدة / أو تحديث البيانات (تحديث الأقسام المرفوعة فقط والحفاظ على الأقسام الأخرى)</option>
+                  <option value="overwrite">🔄 استبدال كامل لكافة البيانات (حذف السجلات السابقة واستيراد الملف الجديد بالكامل)</option>
                 </select>
               </div>
             </div>
           </div>
         </div>
         
-        <!-- لوحة تنبيهات الاستيراد الذكي بالقسم -->
+        <!-- لوحة تنبيهات استيراد وتحديث البيانات بالقسم -->
         <div id="importStatusSummary" style="display:none; padding:12px 16px; background:#e8f5e9; border:1.5px solid #a5d6a7; border-radius:var(--radius); margin-bottom:20px">
-          <div style="font-size:13px; font-weight:800; color:#2e7d32" id="importStatusSummaryTitle">⚙️ حالة الاستيراد الذكي للأقسام:</div>
+          <div style="font-size:13px; font-weight:800; color:#2e7d32" id="importStatusSummaryTitle">⚙️ تفاصيل عملية استيراد وتحديث البيانات:</div>
           <div style="font-size:12px; color:#1b5e20; margin-top:6px; line-height:1.6" id="importStatusSummaryText"></div>
         </div>
         
@@ -3518,7 +3518,7 @@ function checkExistingDeptsFromServer() {
       });
       
       if (unaffected.length > 0) {
-        html += `ℹ️ الأقسام التالية مخزنة مسبقاً في النظام و<b>لن تتأثر أو تُحذف نهائياً</b> بعملية الدمج (ستبقى بيانات طلابها كما هي دون أي تعديل):<br>`;
+        html += `ℹ️ الأقسام التالية مخزنة مسبقاً في النظام و<b>لن تتأثر أو تُحذف نهائياً</b> بعملية استيراد وتحديث البيانات (ستبقى بيانات طلابها كما هي دون أي تعديل):<br>`;
         html += `<ul style="margin: 4px 18px 0 0; padding: 0; list-style-type: square; color:#555">`;
         unaffected.forEach(u => {
           html += `<li>${escapeHtml(u)}</li>`;
@@ -3528,7 +3528,7 @@ function checkExistingDeptsFromServer() {
       
       summaryDiv.style.background = duplicates.length > 0 ? '#fffde7' : '#e8f5e9';
       summaryDiv.style.borderColor = duplicates.length > 0 ? '#fff59d' : '#a5d6a7';
-      document.getElementById('importStatusSummaryTitle').innerHTML = '⚙️ تفاصيل الدمج الذكي للأقسام:';
+      document.getElementById('importStatusSummaryTitle').innerHTML = '⚙️ تفاصيل إضافة وتحديث بيانات الأقسام:';
       summaryText.innerHTML = html;
       summaryDiv.style.display = 'block';
     });
