@@ -1754,21 +1754,24 @@ header .spacer { flex: 1; }
           </div>
           <div class="dashboard-kpi-card" style="background: linear-gradient(135deg, #FF6F00, #E65100);">
             <div class="kpi-icon">👨‍🎓</div>
-            <div class="kpi-title">إجمالي الخريجين / الطلاب</div>
+            <div class="kpi-title">إجمالي الطلاب الخريجين</div>
             <div class="kpi-value" id="dbKpiStudents">-</div>
             <div class="kpi-trend" id="dbKpiStudentsDetail">خريج مؤرشف</div>
           </div>
           <div class="dashboard-kpi-card" style="background: linear-gradient(135deg, #0288D1, #01579B);">
             <div class="kpi-icon">📅</div>
-            <div class="kpi-title">السنوات الأكاديمية</div>
+            <div class="kpi-title">عدد سنوات التخرج</div>
             <div class="kpi-value" id="dbKpiYears">-</div>
-            <div class="kpi-trend" id="dbKpiYearsDetail">أرشيف دراسي</div>
+            <div class="kpi-trend" id="dbKpiYearsDetail">&nbsp;</div>
           </div>
-          <div class="dashboard-kpi-card" style="background: linear-gradient(135deg, #388E3C, #1B5E20);">
-            <div class="kpi-icon">🎓</div>
-            <div class="kpi-title">معدل التحصيل العام</div>
-            <div class="kpi-value" id="dbKpiGpa">-</div>
-            <div class="kpi-trend" id="dbKpiGpaDetail">متوسط المعدلات العامة</div>
+          <div class="dashboard-kpi-card" style="background: linear-gradient(135deg, #388E3C, #1B5E20); position: relative;">
+            <button onclick="loadGlobalAnalytics(true)" title="تحديث أعداد التصدير" style="position: absolute; left: 12px; top: 12px; background: none; border: none; color: rgba(255,255,255,0.75); cursor: pointer; padding: 4px; font-size: 13px; display: flex; align-items: center; justify-content: center; transition: color 0.2s, transform 0.2s; outline: none;" onmouseover="this.style.color='#fff'; this.style.transform='rotate(180deg) scale(1.2)';" onmouseout="this.style.color='rgba(255,255,255,0.75)'; this.style.transform='rotate(0deg) scale(1)';" class="no-print" id="dbKpiExportRefreshBtn">
+              🔄
+            </button>
+            <div class="kpi-icon">📄</div>
+            <div class="kpi-title">عدد طلبات إصدار التأييد / وثيقة تخرج</div>
+            <div class="kpi-value" id="dbKpiExportCount">-</div>
+            <div class="kpi-trend" id="dbKpiExportDetail">تأييد عام: ٠ | خدمة: ٠ | دراسات: ٠</div>
           </div>
         </div>
 
@@ -5222,7 +5225,11 @@ function applyDashboardFilters() {
   }
   
   document.getElementById('dbKpiDepts').textContent = activeDepts.size;
-  document.getElementById('dbKpiDeptsDetail').textContent = deptVal === 'ALL' ? 'قسم علمي وفرع مفعل' : deptVal;
+  const activeDeptsArr = Array.from(activeDepts).filter(d => d && d !== 'غير محدد');
+  const deptsNamesStr = activeDeptsArr.join('، ');
+  const deptsDetailEl = document.getElementById('dbKpiDeptsDetail');
+  deptsDetailEl.textContent = (deptVal === 'ALL' ? 'قسم علمي وفرع مفعل' : deptVal) + (deptsNamesStr ? ' (' + deptsNamesStr + ')' : '');
+  deptsDetailEl.title = deptsNamesStr;
   
   document.getElementById('dbKpiUsers').textContent = _dashboardData.summary.totalUsers;
   
@@ -5230,10 +5237,42 @@ function applyDashboardFilters() {
   document.getElementById('dbKpiStudentsDetail').textContent = 'سجل خريج مؤرشف';
   
   document.getElementById('dbKpiYears').textContent = activeYears.size;
-  document.getElementById('dbKpiYearsDetail').textContent = yearVal === 'ALL' ? 'سنة أكاديمية مسجلة' : yearVal;
+  const yearsDetailEl = document.getElementById('dbKpiYearsDetail');
+  if (yearVal === 'ALL') {
+    yearsDetailEl.innerHTML = '&nbsp;';
+  } else {
+    yearsDetailEl.textContent = yearVal;
+  }
   
-  document.getElementById('dbKpiGpa').textContent = avgGpaValue > 0 ? avgGpaValue.toFixed(2) + '%' : '-';
-  document.getElementById('dbKpiGpaDetail').textContent = gpaCount > 0 ? `معدل موزع لـ ${gpaCount} طالب` : 'لا توجد معدلات تخرج';
+  // حساب أعداد طلبات التصدير
+  let exportCounts = { general: 0, service: 0, postgrad: 0, total: 0 };
+  if (_dashboardData.exportCounters) {
+    if (collegeVal === 'ALL') {
+      Object.keys(_dashboardData.exportCounters).forEach(tId => {
+        const item = _dashboardData.exportCounters[tId];
+        exportCounts.general += item.general || 0;
+        exportCounts.service += item.service || 0;
+        exportCounts.postgrad += item.postgrad || 0;
+        exportCounts.total += item.total || 0;
+      });
+    } else {
+      let selectedTenantId = null;
+      if (_dashboardData.colleges) {
+        const clg = _dashboardData.colleges.find(c => c.collegeName === collegeVal);
+        if (clg) selectedTenantId = clg.tenantId;
+      }
+      if (selectedTenantId && _dashboardData.exportCounters[selectedTenantId]) {
+        const item = _dashboardData.exportCounters[selectedTenantId];
+        exportCounts.general = item.general || 0;
+        exportCounts.service = item.service || 0;
+        exportCounts.postgrad = item.postgrad || 0;
+        exportCounts.total = item.total || 0;
+      }
+    }
+  }
+  
+  document.getElementById('dbKpiExportCount').textContent = exportCounts.total.toLocaleString('ar-EG');
+  document.getElementById('dbKpiExportDetail').textContent = `عام: ${exportCounts.general} | خدمة: ${exportCounts.service} | دراسات: ${exportCounts.postgrad}`;
   
   // رسم المخططات البيانية
   renderMainChart(filtered, collegeVal);
@@ -5698,7 +5737,8 @@ function exportDashboardReport() {
   const kpiUsers = document.getElementById('dbKpiUsers').textContent;
   const kpiStudents = document.getElementById('dbKpiStudents').textContent;
   const kpiYears = document.getElementById('dbKpiYears').textContent;
-  const kpiGpa = document.getElementById('dbKpiGpa').textContent;
+  const kpiExportCount = document.getElementById('dbKpiExportCount').textContent;
+  const kpiExportDetail = document.getElementById('dbKpiExportDetail').textContent;
   
   const activeTableTitle = _currentDbTableTab === 'depts' ? 'جدول إحصائيات الأقسام والتخصصات' : 'أرشيف السنوات الأكاديمية';
   const activeTableTbody = document.getElementById(_currentDbTableTab === 'depts' ? 'dbTableDeptsTbody' : 'dbTableYearsTbody').innerHTML;
@@ -5886,16 +5926,17 @@ function exportDashboardReport() {
           <div class="value">${kpiUsers}</div>
         </div>
         <div class="kpi-card">
-          <div class="title">👨‍🎓 إجمالي الخريجين والطلبة</div>
+          <div class="title">👨‍🎓 إجمالي الطلاب الخريجين</div>
           <div class="value">${kpiStudents}</div>
         </div>
         <div class="kpi-card">
-          <div class="title">📅 السنوات الدراسية</div>
+          <div class="title">📅 عدد سنوات التخرج</div>
           <div class="value">${kpiYears}</div>
         </div>
         <div class="kpi-card">
-          <div class="title">🎓 متوسط التحصيل العام</div>
-          <div class="value">${kpiGpa}</div>
+          <div class="title">📄 طلبات إصدار التأييد / وثيقة تخرج</div>
+          <div class="value">${kpiExportCount}</div>
+          <div style="font-size: 9px; color: #5C7A76; margin-top: 4px;">${kpiExportDetail}</div>
         </div>
       </div>
 
