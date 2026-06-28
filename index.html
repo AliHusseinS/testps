@@ -3409,6 +3409,49 @@ function selectStudentByRef(rowIndex, sheetName) {
   if (student) selectStudent(student);
 }
 
+function parseExcelDate(val) {
+  if (val == null || val === '') return '';
+  
+  // إذا كان رقماً تسلسلياً خاصاً بـ Excel
+  const num = Number(val);
+  if (!isNaN(num) && num > 20000 && num < 60000) {
+    const date = new Date((num - 25569) * 86400000);
+    const y = date.getUTCFullYear();
+    const m = String(date.getUTCMonth() + 1).padStart(2, '0');
+    const d = String(date.getUTCDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  }
+  
+  const dateStr = String(val).trim();
+  
+  // صيغة ISO
+  if (dateStr.indexOf('T') > 0) {
+    try {
+      const d = new Date(dateStr);
+      if (!isNaN(d.getTime())) {
+        const yr = d.getFullYear();
+        const mn = String(d.getMonth() + 1).padStart(2, '0');
+        const dy = String(d.getDate()).padStart(2, '0');
+        return `${yr}-${mn}-${dy}`;
+      }
+    } catch(e) {}
+  }
+
+  // مطابقة YYYY-MM-DD أو YYYY/MM/DD
+  let match = dateStr.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})/);
+  if (match) {
+    return `${match[1]}-${match[2].padStart(2, '0')}-${match[3].padStart(2, '0')}`;
+  }
+  
+  // مطابقة DD-MM-YYYY أو DD/MM/YYYY
+  match = dateStr.match(/^(\d{1,2})[-/](\d{1,2})[-/](\d{4})/);
+  if (match) {
+    return `${match[3]}-${match[2].padStart(2, '0')}-${match[1].padStart(2, '0')}`;
+  }
+  
+  return dateStr;
+}
+
 // عرض بيانات الطالب المحدد في الواجهة
 function showSelectedStudent(student) {
   const section = document.getElementById('selectedStudentSection');
@@ -3429,8 +3472,10 @@ function showSelectedStudent(student) {
     div.className = 'ss-field';
     let val = student[col] != null ? student[col] : '';
     
-    // تنسيق التواريخ ISO فقط
-    if (typeof val === 'string' && val.indexOf('T') > 0 && val.indexOf('Z') > 0) {
+    // تنسيق التواريخ بشكل مرن ونموذجي
+    if (col.includes('تاريخ') || col.includes('Date')) {
+      val = parseExcelDate(val);
+    } else if (typeof val === 'string' && val.indexOf('T') > 0 && val.indexOf('Z') > 0) {
       try {
         const d = new Date(val);
         val = d.getFullYear() + '/' + 
@@ -4387,7 +4432,14 @@ function submitImportData() {
         }
         
         const idx = mapping[col];
-        return idx !== null && row[idx] !== undefined ? String(row[idx]).trim() : '';
+        if (idx !== null && row[idx] !== undefined) {
+          let val = row[idx];
+          if (col.includes('تاريخ') || col.includes('Date')) {
+            return parseExcelDate(val);
+          }
+          return String(val).trim();
+        }
+        return '';
       });
       mappedRows.push(mappedRow);
     });
