@@ -1887,24 +1887,32 @@ header .spacer { flex: 1; }
         </div>
       </div>
 
-      <!-- القسم 1: إعدادات الكلية (لوغو، مستندات) -->
+      <!-- القسم 1: إعدادات الكلية -->
       <div id="mainSection_college" class="main-section" style="display:none">
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:20px">
           <div class="field">
-            <label>🏫 اسم الكلية (قراءة فقط)</label>
-            <input type="text" id="settingCollegeName" readonly>
+            <label>🏫 اسم الكلية</label>
+            <input type="text" id="settingCollegeName" placeholder="اسم الكلية">
           </div>
           <div class="field">
-            <label>🎓 الجامعة (قراءة فقط)</label>
-            <input type="text" id="settingUniversityName" readonly>
+            <label>🎓 اسم الجامعة</label>
+            <input type="text" id="settingUniversityName" placeholder="اسم الجامعة">
           </div>
           <div class="field">
-            <label>🗃️ معرّف ملف Sheet الطلاب (قراءة فقط)</label>
-            <input type="text" id="settingSpreadsheetId" readonly>
+            <label>🏛️ اسم العميد (مع اللقب العلمي)</label>
+            <input type="text" id="settingDeanName" placeholder="مثال: أ.د. أحمد علي محمد">
+          </div>
+          <div class="field">
+            <label>📚 اسم مسجل الكلية (مدير التسجيل)</label>
+            <input type="text" id="settingRegistrarName" placeholder="مثال: السيد حسن جاسم">
           </div>
           <div class="field">
             <label>📁 معرّف مجلد الحفظ في Drive (Output Folder ID)</label>
             <input type="text" id="settingOutputFolder" placeholder="Folder ID">
+          </div>
+          <div class="field">
+            <label>🗃️ معرّف جدول قاعدة البيانات (قراءة فقط)</label>
+            <input type="text" id="settingSpreadsheetId" readonly>
           </div>
           <div style="grid-column: span 2" class="field">
             <label>🖼️ رابط شعار الكلية (Logo URL)</label>
@@ -1912,38 +1920,14 @@ header .spacer { flex: 1; }
           </div>
         </div>
         
-        <div style="margin-bottom:14px; padding-bottom:8px; border-bottom:1.5px solid var(--border)">
-          <h4 style="font-size:14px; font-weight:800; color:var(--primary-dark)">📄 قوالب وثائق التخرج (معرّفات ملفات Google Docs):</h4>
-        </div>
-        
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px">
-          <!-- تأييد تخرج عام -->
-          <div class="field">
-            <label>👨‍🎓 قالب تأييد عام - ذكور</label>
-            <input type="text" id="settingDoc_general_male" placeholder="Doc ID">
-          </div>
-          <div class="field">
-            <label>👩‍🎓 قالب تأييد عام - إناث</label>
-            <input type="text" id="settingDoc_general_female" placeholder="Doc ID">
-          </div>
-          <!-- تأييد الخدمة -->
-          <div class="field">
-            <label>🏛️ قالب مجلس الخدمة - ذكور</label>
-            <input type="text" id="settingDoc_service_male" placeholder="Doc ID">
-          </div>
-          <div class="field">
-            <label>🏛️ قالب مجلس الخدمة - إناث</label>
-            <input type="text" id="settingDoc_service_female" placeholder="Doc ID">
-          </div>
-          <!-- تأييد الدراسات العليا -->
-          <div class="field">
-            <label>📚 قالب الدراسات العليا - ذكور</label>
-            <input type="text" id="settingDoc_postgrad_male" placeholder="Doc ID">
-          </div>
-          <div class="field">
-            <label>📚 قالب الدراسات العليا - إناث</label>
-            <input type="text" id="settingDoc_postgrad_female" placeholder="Doc ID">
-          </div>
+        <!-- مخفي نهائياً لتفادي تعديله من قبل المستخدمين -->
+        <div style="display:none">
+          <input type="text" id="settingDoc_general_male">
+          <input type="text" id="settingDoc_general_female">
+          <input type="text" id="settingDoc_service_male">
+          <input type="text" id="settingDoc_service_female">
+          <input type="text" id="settingDoc_postgrad_male">
+          <input type="text" id="settingDoc_postgrad_female">
         </div>
         
         <div style="margin-top:20px; display:flex; justify-content:flex-end">
@@ -4567,6 +4551,8 @@ function loadCollegeSettings() {
       document.getElementById('settingSpreadsheetId').value = clg.spreadsheetId || '';
       document.getElementById('settingOutputFolder').value = clg.outputFolderId || '';
       document.getElementById('settingLogoUrl').value = clg.logoUrl || '';
+      document.getElementById('settingDeanName').value = clg.deanName || '';
+      document.getElementById('settingRegistrarName').value = clg.registrarName || '';
       
       document.getElementById('settingDoc_general_male').value = (tmpl.general && tmpl.general.docId_male) || '';
       document.getElementById('settingDoc_general_female').value = (tmpl.general && tmpl.general.docId_female) || '';
@@ -4587,6 +4573,10 @@ function loadCollegeSettings() {
 
 function saveCollegeSettings() {
   const payload = {
+    collegeName: document.getElementById('settingCollegeName').value.trim(),
+    universityName: document.getElementById('settingUniversityName').value.trim(),
+    deanName: document.getElementById('settingDeanName').value.trim(),
+    registrarName: document.getElementById('settingRegistrarName').value.trim(),
     outputFolderId: document.getElementById('settingOutputFolder').value.trim(),
     logoUrl: document.getElementById('settingLogoUrl').value.trim(),
     templates: {
@@ -4617,10 +4607,13 @@ function saveCollegeSettings() {
       showToast('✅ تم حفظ الإعدادات بنجاح!', 'success');
       document.getElementById('settingsFoot').textContent = 'تم حفظ الإعدادات';
       
+      if (payload.collegeName) {
+        sessionStorage.setItem('xlCollegeName', payload.collegeName);
+      }
       if (payload.logoUrl) {
         sessionStorage.setItem('xlLogoUrl', payload.logoUrl);
-        updateCollegeUI(sessionStorage.getItem('xlCollegeName'), payload.logoUrl);
       }
+      updateCollegeUI(payload.collegeName || sessionStorage.getItem('xlCollegeName'), payload.logoUrl || sessionStorage.getItem('xlLogoUrl'));
     })
     .catch(err => {
       showToast('❌ خطأ: ' + (err.message || err), 'error');
