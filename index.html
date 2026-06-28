@@ -1740,11 +1740,14 @@ header .spacer { flex: 1; }
             <div class="kpi-value" id="dbKpiColleges">-</div>
             <div class="kpi-trend" id="dbKpiCollegesDetail">نشطة بالكامل</div>
           </div>
-          <div class="dashboard-kpi-card" style="background: linear-gradient(135deg, #1565C0, #0D47A1);">
+          <div class="dashboard-kpi-card" style="background: linear-gradient(135deg, #1565C0, #0D47A1); display: flex; flex-direction: column;">
             <div class="kpi-icon">🏢</div>
             <div class="kpi-title">الأقسام العلمية والفروع</div>
             <div class="kpi-value" id="dbKpiDepts">-</div>
-            <div class="kpi-trend" id="dbKpiDeptsDetail">برامج مفعلة</div>
+            <div>
+              <div class="kpi-trend" id="dbKpiDeptsDetail">قسم علمي وفرع مفعل</div>
+            </div>
+            <div id="dbKpiDeptsList" style="margin-top: 10px; font-size: 10.5px; opacity: 0.95; display: flex; flex-direction: column; gap: 4px; line-height: 1.4; text-align: right; max-height: 80px; overflow-y: auto; padding-left: 5px; scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.3) transparent;"></div>
           </div>
           <div class="dashboard-kpi-card" id="dbKpiUsersCard" style="background: linear-gradient(135deg, #7B1FA2, #4A148C);">
             <div class="kpi-icon">👥</div>
@@ -5225,11 +5228,20 @@ function applyDashboardFilters() {
   }
   
   document.getElementById('dbKpiDepts').textContent = activeDepts.size;
-  const activeDeptsArr = Array.from(activeDepts).filter(d => d && d !== 'غير محدد');
-  const deptsNamesStr = activeDeptsArr.join('، ');
   const deptsDetailEl = document.getElementById('dbKpiDeptsDetail');
-  deptsDetailEl.textContent = (deptVal === 'ALL' ? 'قسم علمي وفرع مفعل' : deptVal) + (deptsNamesStr ? ' (' + deptsNamesStr + ')' : '');
-  deptsDetailEl.title = deptsNamesStr;
+  deptsDetailEl.textContent = deptVal === 'ALL' ? 'قسم علمي وفرع مفعل' : deptVal;
+  
+  const activeDeptsArr = Array.from(activeDepts).filter(d => d && d !== 'غير محدد');
+  const deptsListEl = document.getElementById('dbKpiDeptsList');
+  deptsListEl.innerHTML = '';
+  activeDeptsArr.forEach(dept => {
+    const item = document.createElement('div');
+    item.style.display = 'flex';
+    item.style.alignItems = 'flex-start';
+    item.style.gap = '6px';
+    item.innerHTML = `<span style="color: rgba(255,255,255,0.6); font-size: 8px; margin-top: 4px;">▪</span> <span>${dept}</span>`;
+    deptsListEl.appendChild(item);
+  });
   
   document.getElementById('dbKpiUsers').textContent = _dashboardData.summary.totalUsers;
   
@@ -5739,6 +5751,7 @@ function exportDashboardReport() {
   const kpiYears = document.getElementById('dbKpiYears').textContent;
   const kpiExportCount = document.getElementById('dbKpiExportCount').textContent;
   const kpiExportDetail = document.getElementById('dbKpiExportDetail').textContent;
+  const deptsListHtml = document.getElementById('dbKpiDeptsList').innerHTML.replace(/rgba\(255,\s*255,\s*255,\s*0\.6\)/g, '#00695C');
   
   const activeTableTitle = _currentDbTableTab === 'depts' ? 'جدول إحصائيات الأقسام والتخصصات' : 'أرشيف السنوات الأكاديمية';
   const activeTableTbody = document.getElementById(_currentDbTableTab === 'depts' ? 'dbTableDeptsTbody' : 'dbTableYearsTbody').innerHTML;
@@ -5917,9 +5930,12 @@ function exportDashboardReport() {
           <div class="title">🏫 الكليات النشطة</div>
           <div class="value">${kpiColleges}</div>
         </div>
-        <div class="kpi-card">
-          <div class="title">🏢 الأقسام والبرامج</div>
-          <div class="value">${kpiDepts}</div>
+        <div class="kpi-card" style="text-align: right; padding-right: 15px; display: flex; flex-direction: column; align-items: center; justify-content: flex-start;">
+          <div class="title" style="text-align: center; width: 100%;">🏢 الأقسام والبرامج</div>
+          <div class="value" style="text-align: center; width: 100%;">${kpiDepts}</div>
+          <div style="font-size: 10px; color: #5C7A76; margin-top: 8px; display: flex; flex-direction: column; gap: 4px; width: 100%; text-align: right;">
+            ${deptsListHtml}
+          </div>
         </div>
         <div class="kpi-card">
           <div class="title">👥 مستخدمي النظام</div>
