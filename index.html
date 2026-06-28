@@ -1321,7 +1321,6 @@ header .spacer { flex: 1; }
 <div class="empty-state" id="emptyState" style="display:none">
   <div class="es-icon">📭</div>
   <div class="es-title">لا توجد سنوات دراسية مسجلة</div>
-  <div class="es-msg">تأكد من وجود sheets بصيغة year2021-2022 في ملف Google Sheet</div>
 </div>
 
 <!-- ===== شريط الأزرار السفلي ===== -->
@@ -1971,7 +1970,7 @@ header .spacer { flex: 1; }
               <input type="text" id="addClgUniversity" placeholder="مثال: جامعة الكوفة">
             </div>
             <div class="field">
-              <label>🗃️ معرّف ملف الـ Google Sheet (اتركه فارغاً ليقوم النظام بإنشائه تلقائياً)</label>
+              <label>🗃️ معرّف جدول قاعدة البيانات (اتركه فارغاً ليقوم النظام بإنشائه تلقائياً)</label>
               <input type="text" id="addClgSpreadsheetId" placeholder="Spreadsheet ID">
             </div>
           </div>
@@ -2085,7 +2084,7 @@ header .spacer { flex: 1; }
               <input type="text" id="provOutputFolder" placeholder="معرّف مجلد Drive لحفظ الملفات">
             </div>
             <div class="field">
-              <label>🗃️ معرّف ملف الـ Google Sheet للطلاب (اختياري - اتركه فارغاً لإنشائه تلقائياً)</label>
+              <label>🗃️ معرّف جدول قاعدة البيانات للطلاب (اختياري - اتركه فارغاً لإنشائه تلقائياً)</label>
               <input type="text" id="provSpreadsheetId" placeholder="Spreadsheet ID">
             </div>
           </div>
@@ -4713,7 +4712,7 @@ function addNewCollegeSubmit() {
         return;
       }
       
-      showToast('✅ تم تسجيل الكلية بنجاح!' + (spreadsheetId ? '' : ' وجارِ تهيئة ملف الـ Google Sheet لها'), 'success');
+      showToast('✅ تم تسجيل الكلية بنجاح!' + (spreadsheetId ? '' : ' وجارِ تهيئة قاعدة البيانات الخاصة بها'), 'success');
       
       document.getElementById('addClgTenantId').value = '';
       document.getElementById('addClgTenantId').readOnly = false;
