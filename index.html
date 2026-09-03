@@ -3210,46 +3210,66 @@ function callServer(action, payload) {
       return;
     }
 
-    // الوضع 2: نطاق خارجي → استخدم fetch إلى Web App URL
+    // الوضع 2: نطاق خارجي → استخدم fetch إلى Web App URL مع خاصية التراجع الذكي (Fallback)
     if (!API_URL || API_URL.indexOf('PUT_YOUR_DEPLOYMENT_ID') >= 0) {
       reject(new Error("لم يتم تحديد رابط الـ Web App في API_URL — يرجى تعديل ملف Index.html"));
       return;
     }
 
-    // نستخدم POST مع body من نوع URLSearchParams لتجنب قيود طول الـ URL
-    // ومنع حدوث OPTIONS (CORS preflight) في المتصفحات
-    const bodyParams = new URLSearchParams();
-    if (action !== 'login') {
-      bodyParams.append('token', getToken() || '');
-    }
-    if (payload) {
-      bodyParams.append('payload', JSON.stringify(payload));
-    }
+    const token = (action !== 'login') ? (getToken() || '') : '';
+    const payloadStr = payload ? JSON.stringify(payload) : '';
 
-    const url = API_URL + '?action=' + encodeURIComponent(action);
-
-    fetch(url, {
-      method: 'POST',
-      body: bodyParams,
-      redirect: 'follow'
-    })
-      .then(r => {
-        if (!r.ok) throw new Error("HTTP " + r.status);
-        return r.text();
-      })
-      .then(txt => {
-        try {
-          const data = JSON.parse(txt);
-          // إذا انتهت الجلسة على السيرفر → إعادة لتسجيل الدخول
-          if (data && data.error && String(data.error).indexOf('غير مصرح') >= 0) {
-            clearSession();
-            showToast('⚠️ انتهت الجلسة — يرجى تسجيل الدخول من جديد', 'error');
-            setTimeout(() => location.reload(), 1500);
-          }
-          resolve(data);
-        } catch (e) {
-          resolve(txt);
+    const parseAndHandleResponse = (txt, res) => {
+      try {
+        const data = JSON.parse(txt);
+        if (data && data.error && String(data.error).indexOf('غير مصرح') >= 0) {
+          clearSession();
+          showToast('⚠️ انتهت الجلسة — يرجى تسجيل الدخول من جديد', 'error');
+          setTimeout(() => location.reload(), 1500);
         }
+        res(data);
+      } catch (e) {
+        res(txt);
+      }
+    };
+
+    const doFetchGet = () => {
+      let getUrl = API_URL + '?action=' + encodeURIComponent(action);
+      if (token) getUrl += '&token=' + encodeURIComponent(token);
+      if (payloadStr) getUrl += '&payload=' + encodeURIComponent(payloadStr);
+
+      return fetch(getUrl, { method: 'GET', redirect: 'follow' })
+        .then(r => {
+          if (!r.ok) throw new Error("HTTP " + r.status);
+          return r.text();
+        })
+        .then(txt => parseAndHandleResponse(txt, resolve));
+    };
+
+    const doFetchPost = () => {
+      const bodyParams = new URLSearchParams();
+      if (token) bodyParams.append('token', token);
+      if (payloadStr) bodyParams.append('payload', payloadStr);
+
+      const postUrl = API_URL + '?action=' + encodeURIComponent(action);
+
+      return fetch(postUrl, {
+        method: 'POST',
+        body: bodyParams,
+        redirect: 'follow'
+      })
+        .then(r => {
+          if (!r.ok) throw new Error("HTTP " + r.status);
+          return r.text();
+        })
+        .then(txt => parseAndHandleResponse(txt, resolve));
+    };
+
+    // محاولة POST أولاً، وفي حال حدوث رفض CORS أو مشكلة الشبكة Failed to fetch يتم التراجع التلقائي إلى GET
+    doFetchPost()
+      .catch(err => {
+        console.warn('POST fetch failed for action: ' + action + ', trying GET fallback...', err);
+        return doFetchGet();
       })
       .catch(err => reject(err));
   });
